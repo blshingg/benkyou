@@ -21,10 +21,13 @@ class Deck:
         else:
             self.review_deck.append(card_data)
         
+        to_remove = []
         for card in self.waiting_deck:
             if card['last_reviewed_time'] + card['card'].interval.total_seconds() >= time.time():
                 self.levels[card['card'].level].append(card)
-                self.waiting_deck.remove(card)
+                to_remove += [card]
+        
+        [self.waiting_deck.remove(card) for card in to_remove]
 
     def get_next_card(self) -> dict[str, Card] | None:
         for level in reversed(sorted(self.levels.keys())):
@@ -37,6 +40,13 @@ class Deck:
         return None # No more cards
 
     def requeue_card(self, card_data: dict[str, Card]):
+        to_remove = []
+        for card in self.waiting_deck:
+            if card['last_reviewed_time'] + card['card'].interval.total_seconds() <= time.time():
+                self.levels[card['card'].level].append(card)
+                to_remove += [card]
+        
+        [self.waiting_deck.remove(card) for card in to_remove]
         self.waiting_deck.append(card_data)
 
     def get_all_cards(self) -> list[dict[str, Card]]:

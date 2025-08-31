@@ -40,8 +40,8 @@ class MainWindow(QMainWindow):
         self.stacked_widget.setCurrentWidget(self.progress_menu)
 
     def show_progress_for_deck(self, deck_path):
-        self.progress_screen.load_deck(deck_path)
         self.stacked_widget.setCurrentWidget(self.progress_screen)
+        self.progress_screen.load_deck(deck_path)
 
     def show_study_session(self, deck_path, mode):
         self.study_session.start_study_session(deck_path, mode)

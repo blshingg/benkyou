@@ -3,7 +3,7 @@ import csv
 import time
 import json
 from datetime import datetime, timedelta
-from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget, QPushButton, QScrollArea, QHBoxLayout, QLineEdit
+from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget, QPushButton, QScrollArea, QHBoxLayout, QLineEdit, QApplication
 from PyQt6.QtGui import QFont, QColor
 from PyQt6.QtCore import Qt, QTimer
 
@@ -106,6 +106,13 @@ class ProgressWidget(QWidget):
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(title_label)
 
+        # Loading label
+        self.loading_label = QLabel("Loading...")
+        self.loading_label.setFont(QFont("Times New Roman", 24, QFont.Weight.Bold))
+        self.loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.loading_label.hide() # Hidden by default
+        main_layout.addWidget(self.loading_label)
+
         # Search input
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Search cards...")
@@ -118,13 +125,13 @@ class ProgressWidget(QWidget):
         self.stats_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         main_layout.addWidget(self.stats_label)
 
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
         content_widget = QWidget()
         self.words_layout = QVBoxLayout(content_widget)
         self.words_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        scroll_area.setWidget(content_widget)
-        main_layout.addWidget(scroll_area)
+        self.scroll_area.setWidget(content_widget)
+        main_layout.addWidget(self.scroll_area)
 
         back_button = QPushButton("Back")
         back_button.clicked.connect(back_callback)
@@ -134,6 +141,13 @@ class ProgressWidget(QWidget):
         self.all_word_widgets = [] # Store all WordDisplayWidget instances
 
     def load_deck(self, deck_path):
+        # Show loading indicator
+        self.loading_label.show()
+        self.search_input.hide()
+        self.stats_label.hide()
+        self.scroll_area.hide()
+        QApplication.processEvents() # Process events to update UI
+
         # Clear existing widgets
         for widget in self.all_word_widgets:
             widget.deleteLater()
@@ -209,9 +223,16 @@ class ProgressWidget(QWidget):
         stats_text += f"Cards Due: {due_cards}\n"
         stats_text += "Level Distribution:\n"
         for level, count in level_distribution.items():
-            stats_text += f"  Level {level} ({WordDisplayWidget.LEVEL_TEXTS.get(level, "Unknown" )}): {count}\n"
+            stats_text += f"  Level {level} ({WordDisplayWidget.LEVEL_TEXTS.get(level, 'Unknown')}): {count}\n"
         
         self.stats_label.setText(stats_text)
+
+        # Hide loading indicator and show content
+        self.loading_label.hide()
+        self.search_input.show()
+        self.stats_label.show()
+        self.scroll_area.show()
+        QApplication.processEvents() # Process events to update UI
 
     def _filter_cards(self, query):
         for i, word_data in enumerate(self.all_loaded_word_data):
