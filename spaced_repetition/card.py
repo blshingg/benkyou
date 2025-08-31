@@ -23,6 +23,7 @@
 # SOFTWARE.
 ###
 from datetime import timedelta as td
+from typing import Self
 
 
 class Card:
@@ -34,33 +35,33 @@ class Card:
     def __repr__(self):
         return f"Card(status={self.status}, step={self.step}, interval={self.interval}, ease={self.ease}, level={self.level})"
 
-    def options(self):
+    def options(self) -> list[tuple[str, Self]]:
         if self.status == "learning":
             options = [
-                Card("learning", td(minutes=1)),
-                Card("learning", td(minutes=6), step=1),
-                Card("learning", td(minutes=10), step=1)
+                Card("learning", td(minutes=1), level=0),
+                Card("learning", td(minutes=6), step=1, level=self.level + 1),
+                Card("learning", td(minutes=10), step=1, level=self.level + 1)
                 if self.step == 0
-                else Card("reviewing", td(days=1)),
-                Card("reviewing", td(days=4)),
+                else Card("reviewing", td(days=1), level=self.level + 1),
+                Card("reviewing", td(days=4), level=self.level + 1),
             ]
         elif self.status == "reviewing":
             options = [
-                Card("relearning", td(minutes=10), self.ease - 0.2),
-                Card("reviewing", self.interval * 1.2, self.ease - 0.15),
-                Card("reviewing", self.interval * self.ease, self.ease),
-                Card("reviewing", self.interval * self.ease * 1.5, self.ease + 0.15),
+                Card("relearning", td(minutes=10), self.ease - 0.2, level=self.level - 1),
+                Card("reviewing", self.interval * 1.2, self.ease - 0.15, level=self.level - 1),
+                Card("reviewing", self.interval * self.ease, self.ease, level=self.level - 1),
+                Card("reviewing", self.interval * self.ease * 1.5, self.ease + 0.15, level=self.level + 1),
             ]
         elif self.status == "relearning":
             options = [
-                Card("relearning", td(minutes=1), self.ease),
-                Card("relearning", td(minutes=6), self.ease),
-                Card("reviewing", td(days=1), self.ease),
-                Card("reviewing", td(days=4), self.ease),
+                Card("relearning", td(minutes=1), self.ease, level=self.level - 1),
+                Card("relearning", td(minutes=6), self.ease, level=self.level - 1),
+                Card("reviewing", td(days=1), self.ease, level=self.level - 1),
+                Card("reviewing", td(days=4), self.ease, level=self.level + 1),
             ]
         return list(zip(["again", "hard", "good", "easy"], options))
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             "status": self.status,
             "step": self.step,
@@ -70,7 +71,7 @@ class Card:
         }
         
     @classmethod
-    def from_dict(cls, card_dict):
+    def from_dict(cls, card_dict: dict) -> Self:
         return cls(
             status=card_dict["status"],
             interval=td(seconds=card_dict["interval"]) if card_dict["interval"] else None,

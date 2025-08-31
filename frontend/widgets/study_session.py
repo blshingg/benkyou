@@ -3,6 +3,8 @@ import os
 import sys
 import json
 import random
+import time
+from datetime import datetime, timedelta
 from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget, QPushButton, QHBoxLayout, QLineEdit, QFrame
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
@@ -10,6 +12,7 @@ from PyQt6.QtCore import Qt
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from spaced_repetition.card import Card
 import translation.romaji_to_kana as romkan
+from spaced_repetition.deck import Deck
 
 class StudySessionWidget(QWidget):
     LEVEL_COLORS = {
@@ -19,11 +22,17 @@ class StudySessionWidget(QWidget):
         3: "#00FF00",  # Green
     }
 
+    current_card: Card
+    deck_manager: Deck
+    deck_path: str
+    mode: str
+    current_question_is_japanese: bool
+
     def __init__(self, back_callback):
         super().__init__()
         self.back_callback = back_callback
-        self.deck = []
-        self.current_card_index = 0
+        self.deck_manager = Deck()
+        self.current_card = None # Store the current card being studied
         self.deck_path = None
         self.mode = None
         self.current_question_is_japanese = False
@@ -69,7 +78,7 @@ class StudySessionWidget(QWidget):
         layout.addWidget(self.continue_button)
 
         self.back_button = QPushButton("Back to Menu")
-        self.back_button.clicked.connect(self.back_callback)
+        self.back_button.clicked.connect(lambda: (self.save_progress(), self.back_callback()))
         layout.addWidget(self.back_button)
 
         self.answer_input.textChanged.connect(self.on_text_changed)
@@ -90,8 +99,7 @@ class StudySessionWidget(QWidget):
         
         progress_data = self._load_progress()
         
-        reviewed_cards = []
-        unseen_cards = []
+        all_cards = []
 
         with open(deck_path, 'r', encoding='utf-8') as f:
             reader = csv.reader(f)
@@ -101,21 +109,38 @@ class StudySessionWidget(QWidget):
                     card_data_from_progress = progress_data.get(japanese)
                     if card_data_from_progress:
                         card = Card.from_dict(card_data_from_progress["card"])
-                        level = card_data_from_progress["level"]
-                        reviewed_cards.append({"japanese": japanese, "reading": reading, "english": english, "card": card, "level": level})
+                        level = card.level
+                        last_reviewed = card_data_from_progress.get("last_reviewed_time")
                     else:
                         card = Card()
                         level = 0
-                        unseen_cards.append({"japanese": japanese, "reading": reading, "english": english, "card": card, "level": level})
+                        last_reviewed = None
+                    
+                    all_cards.append({"japanese": japanese, "reading": reading, "english": english, "card": card, "level": level, "last_reviewed_time": last_reviewed})
         
-        random.shuffle(reviewed_cards)
-        self.deck = reviewed_cards + unseen_cards
-        
-        self.current_card_index = 0
+        # Filter cards that are due for review and add to deck manager
+        current_timestamp = time.time()
+        for card_data in all_cards:
+            card = card_data["card"]
+            last_reviewed = card_data["last_reviewed_time"]
+
+            is_due = False
+            if card.status == "learning" and card.step == 0: # New card, unlearned
+                is_due = True
+            elif last_reviewed is not None and card.interval is not None:
+                due_time = last_reviewed + card.interval.total_seconds()
+                if current_timestamp >= due_time:
+                    is_due = True
+            
+            if is_due:
+                self.deck_manager.add_card(card_data)
+
         self.next_card()
 
     def next_card(self):
-        if self.current_card_index >= len(self.deck):
+        self.current_card = self.deck_manager.get_next_card()
+
+        if self.current_card is None:
             self.question_label.setText("Deck finished!")
             self.answer_input.hide()
             self.kana_preview_label.hide()
@@ -136,7 +161,7 @@ class StudySessionWidget(QWidget):
         self.answer_input.setText("")
         self.answer_input.setFocus()
 
-        card_data = self.deck[self.current_card_index]
+        card_data = self.current_card
         
         if self.mode == "eng_to_jap":
             self.question_label.setText(card_data["english"])
@@ -157,14 +182,14 @@ class StudySessionWidget(QWidget):
         self.card_frame.setStyleSheet(f"border: 3px solid {color};")
 
     def check_answer(self):
-        card_data = self.deck[self.current_card_index]
+        card_data = self.current_card
         user_answer_romaji = self.answer_input.text().strip()
 
         self.kana_preview_label.hide()
 
         if self.current_question_is_japanese:
             correct_answer = card_data["english"]
-            is_correct = user_answer_romaji.lower().strip() == correct_answer.lower().strip()
+            is_correct = user_answer_romaji.lower().strip() in correct_answer.lower().strip() and len(user_answer_romaji) != 0
             feedback_answer = correct_answer
         else:
             if user_answer_romaji.isupper():
@@ -184,6 +209,8 @@ class StudySessionWidget(QWidget):
             self.feedback_label.setText(f"Incorrect. Your answer: {user_answer_romaji}. Correct answer: {feedback_answer}")
             card_data["level"] = max(card_data["level"] - 1, 0)
         
+        card_data["last_reviewed_time"] = time.time()
+
         self.answer_input.hide()
         self.submit_button.hide()
         self.submit_button.setDefault(False)
@@ -192,16 +219,16 @@ class StudySessionWidget(QWidget):
         self.continue_button.setFocus()
 
     def update_card(self):
-        card_data = self.deck[self.current_card_index]
+        card_data = self.current_card
         card = card_data["card"]
         level = card_data["level"]
         options = card.options()
         
         if 0 <= level < len(options):
-            new_card_state = options[level][1]
-            self.deck[self.current_card_index]["card"] = new_card_state
+            new_card = options[level][1]
+            card_data["card"] = new_card
         
-        self.current_card_index += 1
+        self.deck_manager.requeue_card(card_data)
         self.next_card()
 
     def _get_progress_path(self):
@@ -225,20 +252,19 @@ class StudySessionWidget(QWidget):
 
         progress_data = []
         default_card = Card()
-        for card_data in self.deck:
-            card = card_data["card"]
+        for card_data in self.deck_manager.get_all_cards():
+            card = card_data["card"].to_dict()
             is_default = (
-                card.status == default_card.status and
-                card_data["level"] == 0
+                card["status"] == default_card.status and
+                card["level"] == default_card.level
             )
             if not is_default:
                 progress_data.append({
                     "japanese": card_data["japanese"],
                     "reading": card_data["reading"],
                     "english": card_data["english"],
-                    "card": card.to_dict(),
-                    "level": card_data["level"]
+                    "card": card,
+                    "last_reviewed_time": card_data["last_reviewed_time"]
                 })
-
         with open(progress_path, 'w', encoding='utf-8') as f:
             json.dump(progress_data, f, indent=4)

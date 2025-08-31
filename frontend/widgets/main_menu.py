@@ -4,7 +4,7 @@ from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 
 class MainMenuWidget(QWidget):
-    def __init__(self, study_callback, progress_callback, quit_callback):
+    def __init__(self, study_callback, show_progress_menu_callback, quit_callback):
         super().__init__()
 
         layout = QVBoxLayout(self)
@@ -25,7 +25,7 @@ class MainMenuWidget(QWidget):
         
         progress_button = QPushButton("2. View Progress")
         progress_button.setShortcut("2")
-        progress_button.clicked.connect(progress_callback)
+        progress_button.clicked.connect(show_progress_menu_callback)
 
         quit_button = QPushButton("3. Quit")
         quit_button.setShortcut("3")
