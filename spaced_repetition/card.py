@@ -39,8 +39,8 @@ class Card:
         if self.status == "learning":
             options = [
                 Card("learning", td(minutes=1), level=0),
-                Card("learning", td(minutes=6), step=1, level=self.level + 1),
-                Card("learning", td(minutes=10), step=1, level=self.level + 1)
+                Card("learning", td(minutes=3), step=1, level=self.level + 1),
+                Card("learning", td(minutes=5), step=1, level=self.level + 1)
                 if self.step == 0
                 else Card("reviewing", td(days=1), level=self.level + 1),
                 Card("reviewing", td(days=4), level=self.level + 1),
