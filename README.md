@@ -123,3 +123,34 @@ User Input → Romanji Processing → Kana Conversion (English→Japanese only) 
 3. Clone the repository
 4. Run `uv sync` to install dependencies
 5. Execute `python main.py` to start the application
+
+## Building an Executable
+
+### Prerequisites
+- UV package manager installed
+
+
+#### Option: Shell Script (Linux/macOS/WSL)
+```bash
+# Run the shell script
+./build.sh
+```
+
+### What the Build Scripts Do
+1. **Clean Previous Builds**: Remove old `dist/` and `build/` directories
+2. **Install Dependencies**: Add PyInstaller as a dev dependency and sync all packages
+3. **Create Configuration**: Generate a PyInstaller spec file optimized for your PyQt6 app
+4. **Bundle Application**: Create a standalone executable with all dependencies included
+5. **Include Data Files**: Automatically bundle your `vocab_files/` and `progress_files/` directories
+
+### Output
+- **Windows**: `dist/benkyou.exe` - Standalone Windows executable
+- **Linux/macOS**: `dist/benkyou` - Native executable for the target platform
+- **Type**: Standalone executable (no Python installation required)
+- **Size**: Typically 50-100MB depending on dependencies
+- **Distribution**: Can be shared with users on the same platform
+
+### Troubleshooting
+- **UV not found**: Install UV from https://docs.astral.sh/uv/getting-started/installation/
+- **Build fails**: Check that you're running the script from the project root directory
+- **Missing dependencies**: The script automatically installs PyInstaller and syncs dependencies
