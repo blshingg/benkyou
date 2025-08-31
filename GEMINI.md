@@ -101,6 +101,14 @@ User Input → Romanji Processing → Kana Conversion (English→Japanese only) 
 - **Memory Management**: Handle large vocabulary decks efficiently
 - **UI Responsiveness**: Ensure smooth user experience during typing and conversion
 
+### 3. File Input Format
+- **CSV Structure**: Comma-separated values with 3 columns
+- **Column 1**: Kanji writing of the word (primary Japanese script)
+- **Column 2**: Hiragana writing of the word (can be blank/ignored if no kanji present)
+- **Column 3**: English meaning/translation
+- **Example Row**: `勉強,べんきょう,to study`
+- **Note**: Column 2 (hiragana) is optional and can be empty for words without kanji
+
 ## Future Enhancements (Consider for Implementation)
 - **Audio Support**: Pronunciation audio for vocabulary words
 - **Statistics Dashboard**: Detailed learning analytics and progress charts
@@ -114,8 +122,7 @@ User Input → Romanji Processing → Kana Conversion (English→Japanese only) 
 ## Dependencies and Libraries
 **Current Dependencies:**
 - PyQt6 ≥6.9.1 (GUI framework)
-- romkan (Romaji to Kana conversion) <- sourcecode from https://github.com/soimort
-- simple-spaced-repetition <- sourcecode from https://github.com/vlopezferrando/simple-spaced-repetition
+- romkan (Romaji to Kana conversion)
 
 ## Getting Started
 1. Ensure Python 3.13+ is installed
@@ -123,3 +130,14 @@ User Input → Romanji Processing → Kana Conversion (English→Japanese only) 
 3. Clone the repository
 4. Run `uv sync` to install dependencies
 5. Execute `python main.py` to start the application
+
+## Notes for Gemini CLI
+When working with this project:
+- Focus on PyQt6-based GUI development
+- Implement the spaced repetition algorithm as defined in the Card class
+- Ensure real-time Romanji to kana conversion (only for English→Japanese mode)
+- Implement smooth, responsive UI with minimal lag for optimal user experience
+- Create dedicated typing interface with real-time feedback and answer validation
+- Maintain the existing project structure and naming conventions
+- Follow the specified quiz modes and user interaction patterns
+- Prioritize clean, maintainable code with comprehensive error handling
