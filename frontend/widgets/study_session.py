@@ -83,12 +83,42 @@ class StudySessionWidget(QWidget):
 
         self.answer_input.textChanged.connect(self.on_text_changed)
 
+    def _convert_mixed_case_to_kana(self, text: str) -> str:
+        """Convert text to kana with mixed case handling.
+        """
+        if not text:
+            return ""
+        
+        
+        # Find segment boundaries where case changes
+        result = ""
+        is_current_segment_upper = None
+        current_start = 0
+        
+        for i, char in enumerate(text):
+            char_case = char.isupper()
+            if is_current_segment_upper is None:
+                is_current_segment_upper = char_case
+            elif char_case != is_current_segment_upper:
+                # Case changed, save current segment
+                if is_current_segment_upper:
+                    result += romkan.to_katakana(text[current_start:i])
+                else:
+                    result += romkan.to_hiragana(text[current_start:i])
+                current_start = i
+                is_current_segment_upper = char_case
+
+        if current_start < len(text) or len(result) < len(text):
+            if is_current_segment_upper:
+                result += romkan.to_katakana(text[current_start:i + 1])
+            else:
+                result += romkan.to_hiragana(text[current_start:i + 1])
+        
+        return result
+
     def on_text_changed(self, text):
         if not self.current_question_is_japanese:
-            if text.isupper():
-                kana = romkan.to_katakana(text)
-            else:
-                kana = romkan.to_hiragana(text)
+            kana = self._convert_mixed_case_to_kana(text)
             self.kana_preview_label.setText(kana)
         else:
             self.kana_preview_label.setText("")
@@ -116,24 +146,13 @@ class StudySessionWidget(QWidget):
                         level = 0
                         last_reviewed = None
                     
-                    all_cards.append({"japanese": japanese, "reading": reading, "english": english, "card": card, "level": level, "last_reviewed_time": last_reviewed})
-        
-        # Filter cards that are due for review and add to deck manager
-        current_timestamp = time.time()
-        for card_data in all_cards:
-            card = card_data["card"]
-            last_reviewed = card_data["last_reviewed_time"]
-
-            is_due = False
-            if card.status == "learning" and card.step == 0: # New card, unlearned
-                is_due = True
-            elif last_reviewed is not None and card.interval is not None:
-                due_time = last_reviewed + card.interval.total_seconds()
-                if current_timestamp >= due_time:
-                    is_due = True
-            
-            if is_due:
-                self.deck_manager.add_card(card_data)
+                    self.deck_manager.requeue_card({
+                        "japanese": japanese,
+                        "reading": reading,
+                        "english": english, "card": card,
+                        "level": level,
+                        "last_reviewed_time": last_reviewed
+                    })
 
         self.next_card()
 
@@ -206,7 +225,7 @@ class StudySessionWidget(QWidget):
             self.feedback_label.setText(f"Correct! The answer is {feedback_answer}")
             card_data["level"] = min(card_data["level"] + 1, 3)
         else:
-            self.feedback_label.setText(f"Incorrect. Your answer: {user_answer_romaji}. Correct answer: {feedback_answer}")
+            self.feedback_label.setText(f"Incorrect. Your answer: {self._convert_mixed_case_to_kana(user_answer_romaji)}. Correct answer: {feedback_answer}")
             card_data["level"] = max(card_data["level"] - 1, 0)
         
         card_data["last_reviewed_time"] = time.time()
@@ -252,7 +271,7 @@ class StudySessionWidget(QWidget):
 
         progress_data = []
         default_card = Card()
-        for card_data in self.deck_manager.get_all_cards():
+        for card_data in self.deck_manager.get_all_cards() + [self.current_card]:
             card = card_data["card"].to_dict()
             is_default = (
                 card["status"] == default_card.status and

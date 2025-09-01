@@ -5,31 +5,23 @@ from spaced_repetition.card import Card
 
 class Deck:
 
-    levels: dict[int, deque[dict[str, Card]]]
-    review_deck: deque[dict[str, Card]]
-    waiting_deck: deque[dict[str, Card]]
+    levels: dict[int, deque[dict[str, Card | str | int]]]
+    review_deck: deque[dict[str, Card | str | int]]
+    waiting_deck: deque[dict[str, Card | str | int]]
 
     def __init__(self):
         self.levels = {0: deque(), 1: deque(), 2: deque(), 3: deque()}
         self.review_deck = deque()
         self.waiting_deck = deque()
 
-    def add_card(self, card_data: dict[str, Card]):
+    def add_card(self, card_data: dict[str, Card | str | int]):
         level = card_data["card"].level
         if 0 <= level <= 3:
             self.levels[level].append(card_data)
         else:
             self.review_deck.append(card_data)
-        
-        to_remove = []
-        for card in self.waiting_deck:
-            if card['last_reviewed_time'] + card['card'].interval.total_seconds() >= time.time():
-                self.levels[card['card'].level].append(card)
-                to_remove += [card]
-        
-        [self.waiting_deck.remove(card) for card in to_remove]
 
-    def get_next_card(self) -> dict[str, Card] | None:
+    def get_next_card(self) -> dict[str, Card | str | int] | None:
         for level in reversed(sorted(self.levels.keys())):
             if self.levels[level]:
                 return self.levels[level].popleft()
@@ -39,17 +31,19 @@ class Deck:
         
         return None # No more cards
 
-    def requeue_card(self, card_data: dict[str, Card]):
+    def requeue_card(self, card_data: dict[str, Card | str | int]):
         to_remove = []
         for card in self.waiting_deck:
-            if card['last_reviewed_time'] + card['card'].interval.total_seconds() <= time.time():
-                self.levels[card['card'].level].append(card)
+            wait_time = card['card'].interval.total_seconds() if card['card'].interval else 0
+            last_reviewed_time = card['last_reviewed_time'] if card['last_reviewed_time'] else 0
+            if last_reviewed_time + wait_time <= time.time() or wait_time == 0 or last_reviewed_time == 0:
+                self.add_card(card)
                 to_remove += [card]
         
         [self.waiting_deck.remove(card) for card in to_remove]
         self.waiting_deck.append(card_data)
 
-    def get_all_cards(self) -> list[dict[str, Card]]:
+    def get_all_cards(self) -> list[dict[str, Card | str | int]]:
         all_cards = []
         for level in self.levels.values():
             all_cards.extend(level)
