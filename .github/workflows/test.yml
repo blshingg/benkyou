@@ -17,6 +17,9 @@ jobs:
 
     - name: Install uv
       run: pip install uv
+    
+    - name: Install pyqt6
+      run: pip install pyqt6
 
     - name: Install dependencies
       run: uv sync --dev
