@@ -134,6 +134,7 @@ class ProgressWidget(QWidget):
         main_layout.addWidget(self.scroll_area)
 
         back_button = QPushButton("Back")
+        back_button.setObjectName('back_button')
         back_button.clicked.connect(back_callback)
         main_layout.addWidget(back_button)
 

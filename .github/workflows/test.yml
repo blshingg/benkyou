@@ -1,0 +1,35 @@
+name: Run Tests
+
+on: [pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1 xvfb mesa-utils libegl-mesa0
+
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install uv
+      run: pip install uv
+    
+    - name: Install pyqt6
+      run: pip install pyqt6
+
+    - name: Install dependencies
+      run: uv sync --dev
+
+    - name: Run tests
+      run: xvfb-run uv run pytest
+      env:
+        QT_QPA_PLATFORM: offscreen
