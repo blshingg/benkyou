@@ -154,3 +154,7 @@ User Input → Romanji Processing → Kana Conversion (English→Japanese only) 
 - **UV not found**: Install UV from https://docs.astral.sh/uv/getting-started/installation/
 - **Build fails**: Check that you're running the script from the project root directory
 - **Missing dependencies**: The script automatically installs PyInstaller and syncs dependencies
+
+
+# Contributing
+Make a PR. I'll get an email and review it ASAP.
