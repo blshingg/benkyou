@@ -30,4 +30,4 @@ jobs:
       run: uv sync --dev
 
     - name: Run tests
-      run: xvfb-run uv run pytest
+      run: xvfb-run uv run pytest --disable-gpu
