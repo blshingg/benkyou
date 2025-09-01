@@ -22,6 +22,7 @@ class Deck:
             self.review_deck.append(card_data)
 
     def get_next_card(self) -> dict[str, Card | str | int] | None:
+        self.check_waiting_deck()
         for level in reversed(sorted(self.levels.keys())):
             if self.levels[level]:
                 return self.levels[level].popleft()
@@ -30,8 +31,8 @@ class Deck:
             return self.review_deck.popleft()
         
         return None # No more cards
-
-    def requeue_card(self, card_data: dict[str, Card | str | int]):
+    
+    def check_waiting_deck(self):
         to_remove = []
         for card in self.waiting_deck:
             wait_time = card['card'].interval.total_seconds() if card['card'].interval else 0
@@ -41,6 +42,8 @@ class Deck:
                 to_remove += [card]
         
         [self.waiting_deck.remove(card) for card in to_remove]
+
+    def requeue_card(self, card_data: dict[str, Card | str | int]):
         self.waiting_deck.append(card_data)
 
     def get_all_cards(self) -> list[dict[str, Card | str | int]]:

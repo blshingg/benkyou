@@ -22,9 +22,11 @@ class ProgressMenuWidget(QWidget):
             if file_name.endswith('.csv'):
                 deck_name = os.path.splitext(file_name)[0]
                 button = QPushButton(deck_name)
+                button.setObjectName(f'deck_button_{deck_name}')
                 button.clicked.connect(lambda checked, f=file_name: show_progress_for_deck_callback(os.path.join(self.vocab_path, f)))
                 layout.addWidget(button)
 
         back_button = QPushButton("Back")
+        back_button.setObjectName('back_button')
         back_button.clicked.connect(back_callback)
         layout.addWidget(back_button)

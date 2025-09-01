@@ -20,14 +20,17 @@ class MainMenuWidget(QWidget):
         button_layout.setSpacing(20)
         
         study_button = QPushButton("1. Study")
+        study_button.setObjectName('study_button')
         study_button.setShortcut("1")
         study_button.clicked.connect(study_callback)
         
         progress_button = QPushButton("2. View Progress")
+        progress_button.setObjectName('progress_button')
         progress_button.setShortcut("2")
         progress_button.clicked.connect(show_progress_menu_callback)
 
         quit_button = QPushButton("3. Quit")
+        quit_button.setObjectName('quit_button')
         quit_button.setShortcut("3")
         quit_button.clicked.connect(quit_callback)
         
