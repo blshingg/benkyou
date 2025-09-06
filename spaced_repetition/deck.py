@@ -19,9 +19,9 @@ class Deck:
     def add_card(self, card_data: CardData):
         level = card_data.card.level
         if 0 <= level <= 3:
-            self.levels[level].append(card_data)
+            self.levels[level].appendleft(card_data)
         else:
-            self.review_deck.append(card_data)
+            self.review_deck.appendleft(card_data)
 
     def get_next_card(self) -> Optional[CardData]:
         self.check_waiting_deck()

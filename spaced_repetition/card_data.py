@@ -1,6 +1,6 @@
 from typing import Optional
 from .card import Card
-
+import random
 
 class CardData:
     """Represents card data with question, answer, and spaced repetition information."""
@@ -20,6 +20,8 @@ class CardData:
         self.reading = reading
         self.level = level
         self.last_reviewed_time = last_reviewed_time
+        random.seed(self.japanese)
+        self.sort_key = random.random()
     
     def __repr__(self) -> str:
         return f"CardData(card={self.card}, japanese='{self.japanese}', english='{self.english}', reading='{self.reading}', level={self.level}, last_reviewed_time={self.last_reviewed_time})"

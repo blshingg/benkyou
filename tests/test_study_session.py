@@ -41,10 +41,10 @@ def test_study_session_widget(qtbot, monkeypatch):
     widget.start_study_session(deck_path, mode)
 
     # Check if the first card is displayed
-    assert widget.question_label.text() == "to study"
+    assert widget.question_label.text() == "dog"
 
     # Simulate typing the correct answer
-    widget.answer_input.setText("benkyou")
+    widget.answer_input.setText("inu")
     qtbot.keyClick(widget.answer_input, Qt.Key.Key_Return)
 
     # Check feedback
@@ -54,7 +54,7 @@ def test_study_session_widget(qtbot, monkeypatch):
     qtbot.mouseClick(widget.continue_button, Qt.MouseButton.LeftButton)
 
     # Check if the second card is displayed
-    assert widget.question_label.text() == "dog"
+    assert widget.question_label.text() == "to study"
 
     # Simulate typing the wrong answer
     widget.answer_input.setText("wrong")
