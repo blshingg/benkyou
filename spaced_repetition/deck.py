@@ -55,3 +55,9 @@ class Deck:
         all_cards.extend(self.review_deck)
         all_cards.extend(self.waiting_deck)
         return all_cards
+    
+    def shuffle(self):
+        for level in self.levels.keys():
+            self.levels[level] = deque(sorted(self.levels[level], key=lambda x: x.sort_key))
+        self.review_deck = deque(sorted(self.review_deck, key=lambda x: x.sort_key))
+        self.waiting_deck = deque(sorted(self.waiting_deck, key=lambda x: x.sort_key))

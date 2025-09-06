@@ -156,7 +156,8 @@ class StudySessionWidget(QWidget):
                         last_reviewed_time=last_reviewed
                     )
                     self.deck_manager.requeue_card(card_data)
-
+        
+        self.deck_manager.shuffle()
         self.next_card()
 
     def next_card(self):
@@ -274,7 +275,7 @@ class StudySessionWidget(QWidget):
 
         progress_data = []
         default_card = Card()
-        for card_data in self.deck_manager.get_all_cards() + [self.current_card]:
+        for card_data in [self.current_card] + self.deck_manager.get_all_cards():
             card = card_data.card.to_dict()
             is_default = (
                 card["status"] == default_card.status and
