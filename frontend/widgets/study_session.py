@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget, QPushButton, QHBoxLayo
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt, QTimer
 
-if platform.system() == "windows":
+if platform.system().lower() == "windows":
     import winsound
 
 try:
