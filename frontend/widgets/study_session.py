@@ -11,6 +11,7 @@ from PyQt6.QtCore import Qt
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from spaced_repetition.card import Card
+from spaced_repetition.card_data import CardData
 import translation.romaji_to_kana as romkan
 from spaced_repetition.deck import Deck
 
@@ -146,13 +147,15 @@ class StudySessionWidget(QWidget):
                         level = 0
                         last_reviewed = None
                     
-                    self.deck_manager.requeue_card({
-                        "japanese": japanese,
-                        "reading": reading,
-                        "english": english, "card": card,
-                        "level": level,
-                        "last_reviewed_time": last_reviewed
-                    })
+                    card_data = CardData(
+                        card=card,
+                        japanese=japanese,
+                        english=english,
+                        reading=reading,
+                        level=level,
+                        last_reviewed_time=last_reviewed
+                    )
+                    self.deck_manager.requeue_card(card_data)
 
         self.next_card()
 
@@ -183,20 +186,20 @@ class StudySessionWidget(QWidget):
         card_data = self.current_card
         
         if self.mode == "eng_to_jap":
-            self.question_label.setText(card_data["english"])
+            self.question_label.setText(card_data.english)
             self.current_question_is_japanese = False
         elif self.mode == "jap_to_eng":
-            self.question_label.setText(card_data["japanese"])
+            self.question_label.setText(card_data.japanese)
             self.current_question_is_japanese = True
         else: # mixed mode
             if random.choice([True, False]):
-                self.question_label.setText(card_data["japanese"])
+                self.question_label.setText(card_data.japanese)
                 self.current_question_is_japanese = True
             else:
-                self.question_label.setText(card_data["english"])
+                self.question_label.setText(card_data.english)
                 self.current_question_is_japanese = False
 
-        level = card_data["level"]
+        level = card_data.level
         color = self.LEVEL_COLORS.get(level, "#FFFFFF")
         self.card_frame.setStyleSheet(f"border: 3px solid {color};")
 
@@ -207,7 +210,7 @@ class StudySessionWidget(QWidget):
         self.kana_preview_label.hide()
 
         if self.current_question_is_japanese:
-            correct_answer = card_data["english"]
+            correct_answer = card_data.english
             is_correct = user_answer_romaji.lower().strip() in correct_answer.lower().strip() and len(user_answer_romaji) != 0
             feedback_answer = correct_answer
         else:
@@ -216,19 +219,19 @@ class StudySessionWidget(QWidget):
             else:
                 user_answer_kana = romkan.to_hiragana(user_answer_romaji)
             
-            correct_answer_japanese = card_data["japanese"]
-            correct_answer_reading = card_data["reading"]
+            correct_answer_japanese = card_data.japanese
+            correct_answer_reading = card_data.reading
             is_correct = user_answer_kana == correct_answer_japanese or (correct_answer_reading and user_answer_kana == correct_answer_reading)
             feedback_answer = f'{correct_answer_japanese} ({correct_answer_reading})'
 
         if is_correct:
             self.feedback_label.setText(f"Correct! The answer is {feedback_answer}")
-            card_data["level"] = min(card_data["level"] + 1, 3)
+            card_data.level = min(card_data.level + 1, 3)
         else:
             self.feedback_label.setText(f"Incorrect. Your answer: {self._convert_mixed_case_to_kana(user_answer_romaji)}. Correct answer: {feedback_answer}")
-            card_data["level"] = max(card_data["level"] - 1, 0)
+            card_data.level = max(card_data.level - 1, 0)
         
-        card_data["last_reviewed_time"] = time.time()
+        card_data.last_reviewed_time = time.time()
 
         self.answer_input.hide()
         self.submit_button.hide()
@@ -239,13 +242,13 @@ class StudySessionWidget(QWidget):
 
     def update_card(self):
         card_data = self.current_card
-        card = card_data["card"]
-        level = card_data["level"]
+        card = card_data.card
+        level = card_data.level
         options = card.options()
         
         if 0 <= level < len(options):
             new_card = options[level][1]
-            card_data["card"] = new_card
+            card_data.card = new_card
         
         self.deck_manager.requeue_card(card_data)
         self.next_card()
@@ -272,18 +275,18 @@ class StudySessionWidget(QWidget):
         progress_data = []
         default_card = Card()
         for card_data in self.deck_manager.get_all_cards() + [self.current_card]:
-            card = card_data["card"].to_dict()
+            card = card_data.card.to_dict()
             is_default = (
                 card["status"] == default_card.status and
                 card["level"] == default_card.level
             )
             if not is_default:
                 progress_data.append({
-                    "japanese": card_data["japanese"],
-                    "reading": card_data["reading"],
-                    "english": card_data["english"],
+                    "japanese": card_data.japanese,
+                    "reading": card_data.reading,
+                    "english": card_data.english,
                     "card": card,
-                    "last_reviewed_time": card_data["last_reviewed_time"]
+                    "last_reviewed_time": card_data.last_reviewed_time
                 })
         with open(progress_path, 'w', encoding='utf-8') as f:
             json.dump(progress_data, f, indent=4)

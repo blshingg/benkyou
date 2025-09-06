@@ -41,7 +41,7 @@ def test_progress_widget(qtbot, monkeypatch):
 
     # Check if the card is displayed
     assert len(widget.all_word_widgets) == 1
-    assert widget.all_word_widgets[0].word_data["japanese"] == "勉強"
+    assert widget.all_word_widgets[0].word_data.japanese == "勉強"
 
     # Check stats
     assert "Total Cards: 1" in widget.stats_label.text()

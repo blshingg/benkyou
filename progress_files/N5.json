@@ -1,1 +1,28 @@
-[]
+[
+    {
+        "japanese": "\u6d74\u3073\u308b",
+        "reading": "\u3042\u3073\u308b",
+        "english": "to bathe, to shower",
+        "card": {
+            "status": "learning",
+            "step": 1,
+            "interval": 180.0,
+            "ease": 2.5,
+            "level": 1
+        },
+        "last_reviewed_time": 1757175078.1661663
+    },
+    {
+        "japanese": "\u5371\u306a\u3044",
+        "reading": "\u3042\u3076\u306a\u3044",
+        "english": "dangerous",
+        "card": {
+            "status": "learning",
+            "step": 1,
+            "interval": 180.0,
+            "ease": 2.5,
+            "level": 1
+        },
+        "last_reviewed_time": 1757175080.8223479
+    }
+]
