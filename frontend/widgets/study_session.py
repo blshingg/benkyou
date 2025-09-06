@@ -5,10 +5,20 @@ import json
 import random
 import time
 import threading
+import platform
+import numpy as np
 from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget, QPushButton, QHBoxLayout, QLineEdit, QFrame
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt, QTimer
-import winsound
+
+if platform.system() == "windows":
+    import winsound
+
+try:
+    import sounddevice as sd
+    SOUNDDEVICE_AVAILABLE = True
+except ImportError:
+    SOUNDDEVICE_AVAILABLE = False
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from spaced_repetition.card import Card
@@ -100,17 +110,65 @@ class StudySessionWidget(QWidget):
         # Play jingle in a separate thread so it doesn't block the animation
         threading.Thread(target=self._play_jingle, daemon=True).start()
 
+    def _generate_tone(self, frequency: float, duration: float, sample_rate: int = 44100) -> np.ndarray:
+        """Generate a sine wave tone with the specified frequency and duration."""
+        t = np.linspace(0, duration, int(sample_rate * duration), False)
+        return np.sin(2 * np.pi * frequency * t)
+
     def _play_jingle(self) -> None:
-        """Play a pleasant jingle in a separate thread."""
+        """Play a pleasant jingle using platform-specific sound function."""
         try:
-            # Play a faster ascending jingle: C-E-G (do-mi-sol)
-            # C4 = 261.63 Hz, E4 = 329.63 Hz, G4 = 392.00 Hz
-            winsound.Beep(262, 150)  # C4 - faster
-            winsound.Beep(330, 150)  # E4 - faster
-            winsound.Beep(392, 150)  # G4 - slightly longer but still faster
-            winsound.Beep(440, 150)  # A4 - slightly longer but still faster
+            system = platform.system().lower()
+            if system == "windows":
+                self._play_jingle_windows()
+            elif system == "linux":
+                self._play_jingle_linux()
+            elif system == "darwin":  # macOS
+                self._play_jingle_mac()
+            else:
+                # Fallback to Windows method for unknown systems
+                self._play_jingle_windows()
         except:
             pass
+
+    def _play_jingle_windows(self) -> None:
+        """Play a pleasant jingle on Windows using winsound."""
+        # Play a faster ascending jingle: C-E-G (do-mi-sol)
+        # C4 = 261.63 Hz, E4 = 329.63 Hz, G4 = 392.00 Hz
+        winsound.Beep(262, 150)  # C4 - faster
+        winsound.Beep(330, 150)  # E4 - faster
+        winsound.Beep(392, 150)  # G4 - slightly longer but still faster
+        winsound.Beep(440, 150)  # A4 - slightly longer but still faster
+
+    def _play_jingle_linux(self) -> None:
+        """Play a pleasant jingle on Linux using sounddevice."""
+        if not SOUNDDEVICE_AVAILABLE:
+            return
+        
+        # Play a faster ascending jingle: C-E-G (do-mi-sol)
+        # C4 = 261.63 Hz, E4 = 329.63 Hz, G4 = 392.00 Hz, A4 = 440.00 Hz
+        frequencies = [262, 330, 392, 440]
+        duration = 0.15  # 150ms
+        
+        for freq in frequencies:
+            tone = self._generate_tone(freq, duration)
+            sd.play(tone, samplerate=44100)
+            sd.wait()  # Wait for the tone to finish playing
+
+    def _play_jingle_mac(self) -> None:
+        """Play a pleasant jingle on macOS using sounddevice."""
+        if not SOUNDDEVICE_AVAILABLE:
+            return
+        
+        # Play a faster ascending jingle: C-E-G (do-mi-sol)
+        # C4 = 261.63 Hz, E4 = 329.63 Hz, G4 = 392.00 Hz, A4 = 440.00 Hz
+        frequencies = [262, 330, 392, 440]
+        duration = 0.15  # 150ms
+        
+        for freq in frequencies:
+            tone = self._generate_tone(freq, duration)
+            sd.play(tone, samplerate=44100)
+            sd.wait()  # Wait for the tone to finish playing
 
     def _start_reward_animation(self) -> None:
         """Start a subtle pulsing/fireworks animation effect."""
@@ -196,8 +254,6 @@ class StudySessionWidget(QWidget):
         
         progress_data = self._load_progress()
         
-        all_cards = []
-
         with open(deck_path, 'r', encoding='utf-8') as f:
             reader = csv.reader(f)
             for row in reader:
