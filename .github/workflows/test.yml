@@ -13,7 +13,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libgl1 xvfb mesa-utils libegl-mesa0
+        sudo apt-get install -y libgl1 xvfb mesa-utils libegl-mesa0 libportaudio2
 
     - name: Set up Python 3.13
       uses: actions/setup-python@v5

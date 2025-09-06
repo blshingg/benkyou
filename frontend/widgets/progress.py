@@ -8,6 +8,7 @@ from PyQt6.QtGui import QFont, QColor
 from PyQt6.QtCore import Qt, QTimer
 
 from spaced_repetition.card import Card
+from spaced_repetition.card_data import CardData
 from utils.fuzzy_match import fuzzy_match
 import translation.romaji_to_kana as romkan
 
@@ -40,17 +41,17 @@ class WordDisplayWidget(QWidget):
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(2)
 
-        japanese_label = QLabel(word_data["japanese"])
+        japanese_label = QLabel(word_data.japanese)
         japanese_font = QFont("Times New Roman", 18, QFont.Weight.Bold)
         japanese_label.setFont(japanese_font)
         layout.addWidget(japanese_label)
 
-        reading_label = QLabel(word_data["reading"])
+        reading_label = QLabel(word_data.reading)
         reading_font = QFont("Times New Roman", 14)
         reading_label.setFont(reading_font)
         layout.addWidget(reading_label)
 
-        english_label = QLabel(word_data["english"])
+        english_label = QLabel(word_data.english)
         english_font = QFont("Times New Roman", 14)
         english_label.setFont(english_font)
         layout.addWidget(english_label)
@@ -59,7 +60,7 @@ class WordDisplayWidget(QWidget):
         level_layout = QHBoxLayout()
         level_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        level = word_data["level"]
+        level = word_data.level
         for i in range(4):
             level_indicator = QLabel()
             level_indicator.setFixedSize(15, 15)
@@ -181,7 +182,7 @@ class ProgressWidget(QWidget):
                         level = 0
                         last_reviewed = None
                     
-                    word_data = {"japanese": japanese, "reading": reading, "english": english, "card": card, "level": level, "last_reviewed_time": last_reviewed}
+                    word_data = CardData(card=card, japanese=japanese, english=english, reading=reading, level=level, last_reviewed_time=last_reviewed)
                     all_cards.append(word_data)
         
         current_timestamp = time.time()
@@ -194,8 +195,8 @@ class ProgressWidget(QWidget):
         for word_data in all_cards:
             word_display_widget = WordDisplayWidget(word_data)
             
-            card = word_data["card"]
-            last_reviewed = word_data["last_reviewed_time"]
+            card = word_data.card
+            last_reviewed = word_data.last_reviewed_time
 
             is_due = False
             if card.status == "learning" and card.step == 0: # New card, unlearned
@@ -214,7 +215,7 @@ class ProgressWidget(QWidget):
             self.words_layout.addWidget(word_display_widget)
 
             # Update statistics
-            level = word_data["level"]
+            level = word_data.level
             if level == 3:
                 learned_cards += 1
             level_distribution[level] += 1
@@ -239,9 +240,9 @@ class ProgressWidget(QWidget):
         for i, word_data in enumerate(self.all_loaded_word_data):
             word_widget = self.all_word_widgets[i]
             
-            japanese = word_data["japanese"]
-            reading = word_data["reading"]
-            english = word_data["english"]
+            japanese = word_data.japanese
+            reading = word_data.reading
+            english = word_data.english
 
             if fuzzy_match(query, japanese) or \
                fuzzy_match(query, reading) or \
