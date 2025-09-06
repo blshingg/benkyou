@@ -10,12 +10,25 @@
             "ease": 2.5,
             "level": 1
         },
-        "last_reviewed_time": 1757175078.1661663
+        "last_reviewed_time": 1757176307.5187755
     },
     {
         "japanese": "\u5371\u306a\u3044",
         "reading": "\u3042\u3076\u306a\u3044",
         "english": "dangerous",
+        "card": {
+            "status": "reviewing",
+            "step": 0,
+            "interval": 86400.0,
+            "ease": 2.5,
+            "level": 2
+        },
+        "last_reviewed_time": 1757176108.2765276
+    },
+    {
+        "japanese": "\u590f",
+        "reading": "\u306a\u3064",
+        "english": "summer",
         "card": {
             "status": "learning",
             "step": 1,
@@ -23,6 +36,58 @@
             "ease": 2.5,
             "level": 1
         },
-        "last_reviewed_time": 1757175080.8223479
+        "last_reviewed_time": 1757176357.1728373
+    },
+    {
+        "japanese": "\u6d88\u3059",
+        "reading": "\u3051\u3059",
+        "english": "to erase, to turn off power",
+        "card": {
+            "status": "learning",
+            "step": 1,
+            "interval": 180.0,
+            "ease": 2.5,
+            "level": 1
+        },
+        "last_reviewed_time": 1757176406.0170815
+    },
+    {
+        "japanese": "\u65b0\u3057\u3044",
+        "reading": "\u3042\u305f\u3089\u3057\u3044",
+        "english": "new; novel; fresh; recent; latest",
+        "card": {
+            "status": "learning",
+            "step": 1,
+            "interval": 180.0,
+            "ease": 2.5,
+            "level": 1
+        },
+        "last_reviewed_time": 1757176414.3849125
+    },
+    {
+        "japanese": "\u5dee\u3059",
+        "reading": "\u3055\u3059",
+        "english": "to stretch out hands, to raise an umbrella",
+        "card": {
+            "status": "learning",
+            "step": 1,
+            "interval": 180.0,
+            "ease": 2.5,
+            "level": 1
+        },
+        "last_reviewed_time": 1757176435.3526294
+    },
+    {
+        "japanese": "\u307b\u304b",
+        "reading": "",
+        "english": "other (place, thing, person); the rest",
+        "card": {
+            "status": "learning",
+            "step": 1,
+            "interval": 180.0,
+            "ease": 2.5,
+            "level": 1
+        },
+        "last_reviewed_time": 1757176449.685803
     }
 ]
