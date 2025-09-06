@@ -121,9 +121,7 @@ def test_reward_animation_properties(qtbot):
     assert hasattr(widget, 'animation_timer')
     assert hasattr(widget, 'animation_phase')
     assert hasattr(widget, 'original_style')
-    assert hasattr(widget, 'sound_effect')
     
     # Check initial values
     assert widget.animation_phase == 0
     assert widget.original_style == ""
-    assert abs(widget.sound_effect.volume() - 0.7) < 0.01

@@ -5,11 +5,9 @@ import json
 import random
 import time
 import threading
-from datetime import datetime, timedelta
 from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget, QPushButton, QHBoxLayout, QLineEdit, QFrame
-from PyQt6.QtGui import QFont, QColor
-from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QRect
-from PyQt6.QtMultimedia import QSoundEffect
+from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt, QTimer
 import winsound
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -41,9 +39,6 @@ class StudySessionWidget(QWidget):
         self.mode = None
         self.current_question_is_japanese = False
         
-        # Initialize sound effect for rewards (fallback)
-        self.sound_effect = QSoundEffect()
-        self.sound_effect.setVolume(0.7)
         
         # Initialize animation properties
         self.animation_timer = QTimer()
@@ -115,8 +110,7 @@ class StudySessionWidget(QWidget):
             winsound.Beep(392, 150)  # G4 - slightly longer but still faster
             winsound.Beep(440, 150)  # A4 - slightly longer but still faster
         except:
-            # Fallback to QSoundEffect if winsound fails
-            self.sound_effect.play()
+            pass
 
     def _start_reward_animation(self) -> None:
         """Start a subtle pulsing/fireworks animation effect."""
