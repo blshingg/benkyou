@@ -54,7 +54,7 @@ KUNREITAB = """ァ       xa      ア       a       ィ       xi      イ       i
 ス       su      ズ       zu      セ       se      ゼ       ze      ソ       so
 ゾ       zo 
 
-タ       ta      ダ       da      チ       ti      チャ      tya     チュ      tyu 
+タ       ta      ダ       da      チャ      tya     チュ      tyu 
 チョ      tyo     ヂ       di      ヂャ      dya     ヂュ      dyu     ヂョ      dyo 
 ティ    ti
 
@@ -373,7 +373,7 @@ for pair in pairs(re.split(r"\s+", KUNREITAB + HEPBURNTAB)):
 # wo -> ヲ, but ヲ/ウォ -> wo
 # du -> ヅ, but ヅ/ドゥ -> du
 # we -> ウェ, ウェ -> we
-ROMKAN.update( {"du": "ヅ", "di": "ヂ", "fu": "フ", "ti": "チ",
+ROMKAN.update( {"du": "ヅ", "di": "ヂ", "fu": "フ", "ti": "ティ",
                 "wi": "ウィ", "we": "ウェ", "wo": "ヲ" } )
 
 # Sort in long order so that a longer Romaji sequence precedes.
