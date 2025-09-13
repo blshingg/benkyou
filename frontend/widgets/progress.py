@@ -18,12 +18,14 @@ class WordDisplayWidget(QWidget):
         1: "#ADAD85",  # Yellow-Gray
         2: "#FFFF00",  # Yellow
         3: "#00FF00",  # Green
+        4: "#0000FF",  # Blue
     }
     LEVEL_TEXTS = {
         0: "Unknown",
         1: "Familiar",
         2: "Learned",
         3: "Skilled",
+        4: "Master",
     }
 
     def __init__(self, word_data):
@@ -190,7 +192,7 @@ class ProgressWidget(QWidget):
         total_cards = len(all_cards)
         learned_cards = 0
         due_cards = 0
-        level_distribution = {0: 0, 1: 0, 2: 0, 3: 0}
+        level_distribution = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
 
         for word_data in all_cards:
             word_display_widget = WordDisplayWidget(word_data)
