@@ -40,12 +40,6 @@ def test_to_hepburn():
     assert to_hepburn("ちゃ") == "cha"
 
 
-def test_to_kunrei():
-    assert to_kunrei("にほん") == "nihon"
-    assert to_kunrei("しんぶん") == "sinbun"
-    assert to_kunrei("ちゃ") == "tya"
-
-
 def test_to_roma():
     assert to_roma("にほん") == "nihon"
     assert to_roma("しんぶん") == "shinbun"

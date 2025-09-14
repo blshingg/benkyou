@@ -218,7 +218,7 @@ class ProgressWidget(QWidget):
 
             # Update statistics
             level = word_data.level
-            if level == 3:
+            if level > 3 or level < 0:
                 learned_cards += 1
             if level == -1:
                 level = max(level_distribution.keys())
