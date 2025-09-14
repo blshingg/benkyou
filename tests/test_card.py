@@ -29,7 +29,7 @@ def test_card_repr():
 
 def test_card_options_learning_step0():
     card = Card()
-    options = card.options()
+    options = card.options(1)
     assert len(options) == 4
     assert options[0][0] == "again"
     assert options[1][0] == "hard"
@@ -46,14 +46,14 @@ def test_card_options_learning_step0():
 
 def test_card_options_learning_step1():
     card = Card(step=1)
-    options = card.options()
+    options = card.options(1)
     assert len(options) == 4
     assert options[2][1].status == "reviewing"
     assert options[2][1].interval == timedelta(days=1)
 
 def test_card_options_reviewing():
     card = Card(status="reviewing", interval=timedelta(days=10))
-    options = card.options()
+    options = card.options(1)
     assert len(options) == 4
     assert options[0][1].status == "relearning"
     assert options[0][1].ease == 2.3
@@ -66,7 +66,7 @@ def test_card_options_reviewing():
 
 def test_card_options_relearning():
     card = Card(status="relearning")
-    options = card.options()
+    options = card.options(1)
     assert len(options) == 4
     assert options[0][1].status == "relearning"
     assert options[0][1].interval == timedelta(minutes=1)

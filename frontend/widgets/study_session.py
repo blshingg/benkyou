@@ -39,6 +39,7 @@ class StudySessionWidget(QWidget):
     deck_path: str
     mode: str
     current_question_is_japanese: bool
+    previous_question_correct: int = 0 # 1 or -1 unless just initialized
 
     def __init__(self, back_callback):
         super().__init__()
@@ -350,10 +351,12 @@ class StudySessionWidget(QWidget):
         if is_correct:
             self.feedback_label.setText(f"Correct! The answer is {feedback_answer}")
             card_data.level = min(card_data.level + 1, 3)
+            self.previous_question_correct = 1
             self.reward_user()
         else:
             self.feedback_label.setText(f"Incorrect. Your answer: {self._convert_mixed_case_to_kana(user_answer_romaji)}. Correct answer: {feedback_answer}")
             card_data.level = max(card_data.level - 1, 0)
+            self.previous_question_correct = -1
         
         card_data.last_reviewed_time = time.time()
 
@@ -368,7 +371,7 @@ class StudySessionWidget(QWidget):
         card_data = self.current_card
         card = card_data.card
         level = card_data.level
-        options = card.options()
+        options = card.options(self.previous_question_correct)
         
         if 0 <= level < len(options):
             new_card = options[level][1]

@@ -35,29 +35,29 @@ class Card:
     def __repr__(self):
         return f"Card(status={self.status}, step={self.step}, interval={self.interval}, ease={self.ease}, level={self.level})"
 
-    def options(self) -> list[tuple[str, Self]]:
+    def options(self, change: int) -> list[tuple[str, Self]]:
         if self.status == "learning":
             options = [
                 Card("learning", td(minutes=1), level=0),
-                Card("learning", td(minutes=3), step=1, level=self._clamp_levels(self.level)),
-                Card("learning", td(minutes=5), step=1, level=self._clamp_levels(self.level))
+                Card("learning", td(minutes=3), step=1, level=self._clamp_levels(self.level + change)),
+                Card("learning", td(minutes=5), step=1, level=self._clamp_levels(self.level + change))
                 if self.step == 0
-                else Card("reviewing", td(days=1), level=self._clamp_levels(self.level)),
-                Card("reviewing", td(days=4), level=self._clamp_levels(self.level + 1)),
+                else Card("reviewing", td(days=1), level=self._clamp_levels(self.level + change)),
+                Card("reviewing", td(days=4), level=self._clamp_levels(self.level + change + change)),
             ]
         elif self.status == "reviewing":
             options = [
-                Card("relearning", td(minutes=10), self.ease - 0.2, level=self._clamp_levels(self.level)),
-                Card("reviewing", self.interval * 1.2, self.ease - 0.15, level=self._clamp_levels(self.level)),
-                Card("reviewing", self.interval * self.ease, self.ease, level=self._clamp_levels(self.level)),
-                Card("reviewing", self.interval * self.ease * 1.5, self.ease + 0.15, level=self._clamp_levels(self.level + 1)),
+                Card("relearning", td(minutes=10), self.ease - 0.2, level=self._clamp_levels(self.level + change)),
+                Card("reviewing", self.interval * 1.2, self.ease - 0.15, level=self._clamp_levels(self.level + change)),
+                Card("reviewing", self.interval * self.ease, self.ease, level=self._clamp_levels(self.level + change)),
+                Card("reviewing", self.interval * self.ease * 1.5, self.ease + 0.15, level=self._clamp_levels(self.level + change)),
             ]
         elif self.status == "relearning":
             options = [
-                Card("relearning", td(minutes=1), self.ease, level=self._clamp_levels(self.level)),
-                Card("relearning", td(minutes=6), self.ease, level=self._clamp_levels(self.level)),
-                Card("reviewing", td(days=1), self.ease, level=self._clamp_levels(self.level)),
-                Card("reviewing", td(days=4), self.ease, level=self._clamp_levels(self.level + 1)),
+                Card("relearning", td(minutes=1), self.ease, level=self._clamp_levels(self.level + change)),
+                Card("relearning", td(minutes=6), self.ease, level=self._clamp_levels(self.level + change)),
+                Card("reviewing", td(days=1), self.ease, level=self._clamp_levels(self.level + change)),
+                Card("reviewing", td(days=4), self.ease, level=self._clamp_levels(self.level + change)),
             ]
         return list(zip(["again", "hard", "good", "easy"], options))
 
