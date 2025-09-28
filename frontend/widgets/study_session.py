@@ -399,6 +399,8 @@ class StudySessionWidget(QWidget):
         progress_data = []
         default_card = Card()
         for card_data in [self.current_card] + self.deck_manager.get_all_cards():
+            if card_data is None:
+                continue
             card = card_data.card.to_dict()
             is_default = (
                 card["status"] == default_card.status and
