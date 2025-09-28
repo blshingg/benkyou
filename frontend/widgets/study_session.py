@@ -339,11 +339,7 @@ class StudySessionWidget(QWidget):
             is_correct = user_answer_romaji.lower().strip() in correct_answer.lower().strip() and len(user_answer_romaji) != 0
             feedback_answer = correct_answer
         else:
-            if user_answer_romaji.isupper():
-                user_answer_kana = romkan.to_katakana(user_answer_romaji)
-            else:
-                user_answer_kana = romkan.to_hiragana(user_answer_romaji)
-            
+            user_answer_kana = self._convert_mixed_case_to_kana(user_answer_romaji)
             correct_answer_japanese = card_data.japanese
             correct_answer_reading = card_data.reading
             is_correct = user_answer_kana == correct_answer_japanese or (correct_answer_reading and user_answer_kana == correct_answer_reading)
