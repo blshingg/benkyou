@@ -250,6 +250,7 @@ class StudySessionWidget(QWidget):
             self.kana_preview_label.setText("")
 
     def start_study_session(self, deck_path, mode):
+        self.deck_manager = Deck()
         self.deck_path = deck_path
         self.mode = mode
         
